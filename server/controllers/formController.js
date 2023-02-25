@@ -52,11 +52,25 @@ const editForm = async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(404).json({ error: "No such form" });
   }
-  const form = await Form.findOneAndUpdate({ _id: id }, { ...req.body });
-  if (!form) {
-    return res.status(400).json({ error: "No such form" });
+  try {
+    const existingForm = await Form.findById(id);
+    if (!existingForm) {
+      return res.status(400).json({ error: "No such form" });
+    }
+    const { name, sectors, agree } = req.body;
+    const updatedForm = {
+      name: name || existingForm.name,
+      sectors: sectors || existingForm.sectors,
+      agree: agree || existingForm.agree,
+    };
+    if (!updatedForm.name || updatedForm.sectors.length === 0 || !updatedForm.agree) {
+      return res.status(400).json({ error: "Please fill in all fields" });
+    }
+    const form = await Form.findOneAndUpdate({ _id: id }, updatedForm, { new: true });
+    res.status(200).json(form);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
-  res.status(200).json(form);
 };
 
 module.exports = {
