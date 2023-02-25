@@ -6,7 +6,7 @@ function List() {
 
   useEffect(() => {
     const fetchForms = async () => {
-      const response = await fetch("http://localhost:5000/forms/");
+      const response = await fetch("https://fahad-test-app-api.vercel.app/forms/");
       const json = await response.json();
       if (response.ok) {
         setForms(json);
